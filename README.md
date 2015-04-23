@@ -1,2 +1,3 @@
 # ParaProg
-blaDDD
+Sammlung für ParaProgKorniSuperTollerMegaAufgaben, mit extra
+Spassfaktor
