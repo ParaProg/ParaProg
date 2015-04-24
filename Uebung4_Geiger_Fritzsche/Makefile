@@ -1,8 +1,8 @@
 
 CC = /usr/bin/gcc
 CFLAGS = -O2
-//LIBS = -lrt -lblas -lm
-LIBS = -lm
+LIBS = -lrt -lblas -lm
+
 
 all: main
 
@@ -12,3 +12,8 @@ main: main.c
 run:
 	./main
 
+plot:
+	python plotter.py
+
+clean:
+	rm main

@@ -1,9 +1,9 @@
 //-------------------------------------//
 #include <stdio.h>
 #include <stdlib.h>
-#include <cblas.h>
+//#include <cblas.h>
 #include <string.h>
-#include <x86intrin.h>
+//#include <x86intrin.h>
 #include "timing.h"
 //-------------------------------------//
 #define FALSE   0
