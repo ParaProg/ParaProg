@@ -2,7 +2,7 @@
 CC = /usr/bin/gcc
 CFLAGS = -O2
 //LIBS = -lrt -lblas -lm
-LIBS = -lm
+LIBS = -lm -lpthread
 
 all: main
 
