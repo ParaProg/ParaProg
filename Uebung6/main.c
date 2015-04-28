@@ -14,10 +14,10 @@
 //-------------------------------------//
 
 const int THREADS = 4;
-const int zylinder_length = 45; // in cm
+const int zylinder_length = 25; // in cm
 const int segments_per_cm = 1;
 const float outer_temp = 30;
-const float inner_temp = 25;
+const float inner_temp = 22;
 const float ice_temp = 0;
 
 int init_full_hoehe = 2.0;
@@ -104,10 +104,10 @@ int main()
     {
         mat = (double *) malloc( size * size * sizeof(double));
         initMat(mat,size);
-        printMat(mat,size); 
+        //printMat(mat,size); 
         pthread_t threads[THREADS];
         int i,j,k;
-        for (k = 0; k < 2000; k++)
+        for (k = 0; k < 200; k++)
         {
             copyMat = (double *) malloc( size * size * sizeof(double));
             for (i = 0; i < size; i++)
@@ -132,19 +132,29 @@ int main()
                     mat[i+j*size] = copyMat[i+j*size];
                 }
             }
-        }
-        float sum = 0;
-        for (i = 0; i < size; i++)
-        {
-            for (j = 0; j < size; j++)
+            char str[100];
+            snprintf(str,100,"%d.txt",k);
+            if ( init_full_hoehe == 19  ) 
             {
-                sum += copyMat[i+j*size];
+                writeResults(copyMat,size,str);
             }
         }
-        float average = sum/(size*size);
+        float sum = 0;
+        int counter = 0;
+        for (i = 1; i < size-1; i++)
+        {
+            for (j = 1; j < size-1; j++)
+            {
+                sum += copyMat[i+j*size];
+                counter++;
+            }
+        }
+        float average = sum/(counter);
         printf("temp: %f\n",average);
         printf("fullhoehe: %d\n\n\n",init_full_hoehe);
-       
+      
+
+
         if (average < 10)
             init_full_hoehe--;
         else init_full_hoehe++;
@@ -167,7 +177,6 @@ int main()
         prev_sum = average;
     }
     printMat(mat,size);
-    writeResults(mat,size,"bla.txt");
     printf("\ngewuenschte Fullhoehe [cm]: %d\n",init_full_hoehe);
     printf("gewuenschte Fullhoehe [Prozent]: %f\n",(float)init_full_hoehe/((float)zylinder_length));
     return 0;
