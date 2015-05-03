@@ -20,9 +20,8 @@ for c in range(0,199):
             numbers.append(float(word))
         N.append(numbers)
 
-
     X = np.array(N)
-    X = X.T
+    #X = X.T
     
     counter = 0.0
     average = 0.0;
@@ -33,7 +32,6 @@ for c in range(0,199):
     average = average / counter
     print average
 
-
     fig = plt.figure(figsize=(9, 7))
 
     ax = fig.add_subplot(111)
@@ -41,9 +39,9 @@ for c in range(0,199):
     plt.imshow(X)
     ax.set_aspect('equal')
 
-    ax.xaxis.set_ticks(range(0,len(A),1))
-    ax.yaxis.set_ticks(range(0,len(A),1))
-    ax.annotate('Average Temp: ' + str(average), xy=(2, 1), xytext=(0, 28.5),)
+    ax.xaxis.set_ticks(range(0,len(A),15))
+    ax.yaxis.set_ticks(range(0,len(A),15))
+    ax.annotate('Average Temp: ' + str(average), xy=(2, 1), xytext=(0, 350.5),)
 
     plt.tick_params(axis='both', which='major', labelsize=8)
     ax.grid(b=True, which='major', color='g', linestyle='-')
@@ -62,4 +60,5 @@ for c in range(0,199):
         name += "0"
     name += str(c)
     name += ".png"
-    plt.savefig(name, dpi = 280, figsize=(34,24))
+    plt.savefig(name, dpi = 180, figsize=(34,24))
+    plt.close()

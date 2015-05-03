@@ -13,14 +13,14 @@
 #define TRUE    1
 //-------------------------------------//
 
-const int THREADS = 4;
-const int zylinder_length = 25; // in cm
+const int THREADS = 25;
+const int zylinder_length = 15; // in cm
 const int segments_per_cm = 1;
 const float outer_temp = 30;
-const float inner_temp = 22;
+const float inner_temp = 20;
 const float ice_temp = 0;
 
-int init_full_hoehe = 2.0;
+int init_full_hoehe = 5.0;
 double *copyMat;
 double *mat;
 
@@ -67,7 +67,7 @@ void writeResults(double *mat,int size, char* filename)
     {
         for (d = 0; d < size; d++)
         {
-            fprintf(res,"%f ",mat[c + d*size]); 
+            fprintf(res,"%f ",mat[d + c*size]); 
         }
         fprintf(res,"\n");
     }
@@ -117,6 +117,23 @@ int main()
                     copyMat[i+j*size] = mat[i+j*size];
                 }
             }
+    /*
+    for (i = 0; i < size; i++)
+    {
+        for (j = 0; j < size; j++)
+        {   
+            if ( j > zylinder_length*segments_per_cm - init_full_hoehe*segments_per_cm &&
+                (i == 0 || i == size - 1 || j == 0 || j == size - 1))
+                copyMat[i+j*size] = ice_temp;
+            else if (i == 0 || i == size - 1 || j == 0 || j == size - 1)
+                copyMat[i+j*size] = outer_temp;
+            else 
+            {
+            }
+                //copyMat[i+j*size] = inner_temp;
+        }
+    }
+    */
             for (i = 0; i < THREADS; i++)
             {
                 pthread_create(&threads[i], NULL, (void*) test,(void*) (intptr_t)size);
@@ -134,9 +151,11 @@ int main()
             }
             char str[100];
             snprintf(str,100,"%d.txt",k);
-            if ( init_full_hoehe == 19  ) 
+            if ( init_full_hoehe == 5  ) 
             {
                 writeResults(copyMat,size,str);
+                toggle_counter == 1;
+                old_full_hoehe = init_full_hoehe;
             }
         }
         float sum = 0;
@@ -154,10 +173,11 @@ int main()
         printf("fullhoehe: %d\n\n\n",init_full_hoehe);
       
 
-
+/*
         if (average < 10)
             init_full_hoehe--;
         else init_full_hoehe++;
+  */
         toggle_counter--;
         if (toggle_counter == 0)
         {
