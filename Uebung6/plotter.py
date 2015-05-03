@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 
-for c in range(0,199):
+for c in range(700,899):
     A = []
     N = []
     fi = "./" + str(c) + ".txt"

@@ -149,7 +149,7 @@ int main()
 
 
 
-    for (i = 1; i < 200; i++)
+    for (i = 1; i < 900; i++)
     {
         copyMats();
         
@@ -157,7 +157,7 @@ int main()
         snprintf(str,100,"%d.txt",i);
         writeResults(readMat,SIZE,str);
        
-        unsigned int us = 500;
+        unsigned int us = 100;
         usleep(us);
     }
     finished = TRUE;
