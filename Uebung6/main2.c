@@ -14,26 +14,18 @@
 #define TRUE    1
 //-------------------------------------//
 
-const int SIZE = 30;
-const int THREADS = 1;
+const int SIZE = 200;
+const int THREADS = 200;
 
 double* readMat;
 double* writeMat;
 
-double INNER_TEMP = 10;
+double INNER_TEMP = 20;
 double WARM_TEMP = 30;
 double COLD_TEMP = 0;
 double hoehe = 25;
 
 int finished = FALSE;
-
-typedef struct data2 data2;
-struct data2
-{
-    int size;
-    int x;
-    int y;
-};
 
 void writeResults(double *mat,int size, char* filename)
 {
@@ -89,36 +81,32 @@ int isPointCold(int x, int y)
     return FALSE;
 }
 
-void step(data2* data)
+void step()
 {   
-    int size = data->size;
+    int size = SIZE;
     while(finished == FALSE)
     {
         int c,d;
-        for (c = data->x + 1; c < data->x + size-1; c++)
+        c = rand() % (size-2)+1;
+        d = rand() % (size-2)+1;
+        if (isPointWarm(c,d)) 
         {
-            for (d = data->y + 1; d < data->y + size-1; d++)
-            {
-                if (isPointWarm(c,d)) 
-                {
-                    writeMat[c + d * SIZE] =  WARM_TEMP;
-                } else if(isPointCold(c,d))
-                {
-                    writeMat[c + d * SIZE] = COLD_TEMP;
-                }
-                else {
-                    double z1 = readMat[c + 1 + d * size];
-                    double z2 = readMat[c - 1 + d * size];
-                    double z3 = readMat[c + (d - 1) * size];
-                    double z4 = readMat[c + (d + 1) * size];
-                    double z5 = readMat[c + d * size];
-                    double z6 = readMat[c + 1 + (d - 1) * size];
-                    double z7 = readMat[c - 1 + (d + 1) * size];
-                    double z8 = readMat[c - 1 + (d - 1) * size];
-                    double z9 = readMat[c + 1 + (d + 1) * size];
-                    writeMat[c + d * SIZE] = (z1 + z2 + z3 + z4 + z5 + z6 + z7 + z8 + z9) / 9.0;
-                }
-            }
+            writeMat[c + d * SIZE] =  WARM_TEMP;
+        } else if(isPointCold(c,d))
+        {
+            writeMat[c + d * SIZE] = COLD_TEMP;
+        }
+        else {
+            double z1 = readMat[c + 1 + d * size];
+            double z2 = readMat[c - 1 + d * size];
+            double z3 = readMat[c + (d - 1) * size];
+            double z4 = readMat[c + (d + 1) * size];
+            double z5 = readMat[c + d * size];
+            double z6 = readMat[c + 1 + (d - 1) * size];
+            double z7 = readMat[c - 1 + (d + 1) * size];
+            double z8 = readMat[c - 1 + (d - 1) * size];
+            double z9 = readMat[c + 1 + (d + 1) * size];
+            writeMat[c + d * SIZE] = (z1 + z2 + z3 + z4 + z5 + z6 + z7 + z8 + z9) / 9.0;
         }
     }
 }
@@ -138,6 +126,7 @@ void copyMats()
 int main()
 {
     printf("init\n");
+    srand( (unsigned) time(NULL) ) ;
     int i,j;
     pthread_t threads[THREADS];
     readMat = malloc( SIZE * SIZE * sizeof(double));
@@ -153,20 +142,12 @@ int main()
         }
     }
 
-    int size = SIZE/THREADS;
-    j = 0;
     for (i = 0; i < THREADS; i++)
     {
-        if ( i > SIZE/(size) ) 
-        {
-            i == 0;
-            j++;
-        }
-        data2 dat2 = {size,i,j};
-        data2 *dat = &dat2;
-        printf("creating thread\n");
-        pthread_create(&threads[i], NULL, (void*) step,(void*) dat);
+        pthread_create(&threads[i], NULL, (void*) step, NULL);
     }
+
+
 
     for (i = 1; i < 200; i++)
     {
@@ -175,8 +156,8 @@ int main()
         char str[100];
         snprintf(str,100,"%d.txt",i);
         writeResults(readMat,SIZE,str);
-        
-        unsigned int us = 50000;
+       
+        unsigned int us = 500;
         usleep(us);
     }
     finished = TRUE;
