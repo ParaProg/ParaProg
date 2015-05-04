@@ -13,14 +13,14 @@
 #define TRUE    1
 //-------------------------------------//
 
-const int THREADS = 25;
-const int zylinder_length = 15; // in cm
+const int THREADS = 28;
+const int zylinder_length = 155; // in cm
 const int segments_per_cm = 1;
 const float outer_temp = 30;
-const float inner_temp = 20;
+const float inner_temp = 15;
 const float ice_temp = 0;
 
-int init_full_hoehe = 5.0;
+int init_full_hoehe = 20.0;
 double *copyMat;
 double *mat;
 
@@ -72,7 +72,7 @@ void writeResults(double *mat,int size, char* filename)
         fprintf(res,"\n");
     }
 }
-void test(int size)
+void step(int size)
 {
     int k;
     for (k = 0; k < size; k++)
@@ -92,6 +92,8 @@ void test(int size)
 
 int main()
 {
+    timing_t stime, etime;
+    get_time(&stime);
     srand( (unsigned) time(NULL) ) ;
     int size = zylinder_length * segments_per_cm + 2;
     int old_full_hoehe = -1;
@@ -100,7 +102,8 @@ int main()
     
     float prev_sum = 0;
     float prev_hoehe = 0;
-    for (z = 0; z < 115; z++)
+    float average = 999;
+    while (abs(average - 10) > 0.5 )
     {
         mat = (double *) malloc( size * size * sizeof(double));
         initMat(mat,size);
@@ -136,7 +139,7 @@ int main()
     */
             for (i = 0; i < THREADS; i++)
             {
-                pthread_create(&threads[i], NULL, (void*) test,(void*) (intptr_t)size);
+                pthread_create(&threads[i], NULL, (void*) step,(void*) (intptr_t)size);
             }
             for (i = 0; i < THREADS; i++)
             {
@@ -149,14 +152,6 @@ int main()
                     mat[i+j*size] = copyMat[i+j*size];
                 }
             }
-            char str[100];
-            snprintf(str,100,"%d.txt",k);
-            if ( init_full_hoehe == 5  ) 
-            {
-                writeResults(copyMat,size,str);
-                toggle_counter == 1;
-                old_full_hoehe = init_full_hoehe;
-            }
         }
         float sum = 0;
         int counter = 0;
@@ -168,37 +163,20 @@ int main()
                 counter++;
             }
         }
-        float average = sum/(counter);
-        printf("temp: %f\n",average);
-        printf("fullhoehe: %d\n\n\n",init_full_hoehe);
-      
+        average = sum/(counter);
 
-/*
-        if (average < 10)
-            init_full_hoehe--;
+        if (average < 10) init_full_hoehe--;
         else init_full_hoehe++;
-  */
-        toggle_counter--;
-        if (toggle_counter == 0)
-        {
-            if (old_full_hoehe == init_full_hoehe)
-            {
-                printf("\nAbbruch!\n");
-                if (abs(10 - sum) > abs(10 - prev_sum))
-                {
-                    init_full_hoehe = prev_hoehe;
-                } 
-                break;
-            }
-            toggle_counter = 2;
-            old_full_hoehe = init_full_hoehe;
-        }
-        prev_hoehe = init_full_hoehe;
-        prev_sum = average;
+
+        printf("average temp: %f\n",average);
+        printf("fullhoehe: %d\n\n\n",init_full_hoehe);
     }
-    printMat(mat,size);
+    // printMat(mat,size);
     printf("\ngewuenschte Fullhoehe [cm]: %d\n",init_full_hoehe);
     printf("gewuenschte Fullhoehe [Prozent]: %f\n",(float)init_full_hoehe/((float)zylinder_length));
+    get_time(&etime);
+    long double dif = timespec_diff(stime,etime);
+    printf("laufzeit: %LF\n",dif);
     return 0;
 }
 

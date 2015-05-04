@@ -15,17 +15,19 @@
 //-------------------------------------//
 
 const int SIZE = 50;
-const int THREADS = 10;
+const int THREADS = 300;
+const int WRITE_RESULTS = TRUE;
 
 double* readMat;
 double* writeMat;
 
-double INNER_TEMP = 20;
+double INNER_TEMP = 15;
 double WARM_TEMP = 30;
 double COLD_TEMP = 0;
-int hoehe = 25;
+int hoehe = 10;
 
 int finished = FALSE;
+
 
 void writeResults(double *mat,int size, char* filename)
 {
@@ -84,7 +86,8 @@ int isPointCold(int x, int y)
 void step()
 {   
     int size = SIZE;
-    while(finished == FALSE)
+    int i;
+    for ( i = 0; i < 200; i++)
     {
         int c,d;
         c = rand() % (size-2)+1;
@@ -125,6 +128,8 @@ void copyMats()
 
 int main()
 {
+    timing_t stime, etime;
+    get_time(&stime);
     printf("init\n");
     srand( (unsigned) time(NULL) ) ;
     int i,j;
@@ -142,26 +147,44 @@ int main()
         }
     }
 
-    for (i = 0; i < THREADS; i++)
-    {
-        pthread_create(&threads[i], NULL, (void*) step, NULL);
-    }
-
-
     float average = 200;
-    while (abs(10 - average) > 0.2)
+    int steps = 0;
+    while (abs(10 - average) > 0.5)
     {
-        for (i = 1; i < 100; i++)
+        int e; // waint long enough
+        for (e = 0; e < 500; e++)
         {
             copyMats();
-
-            char str[100];
-            snprintf(str,100,"%d.txt",i);
-            // writeResults(readMat,SIZE,str);
-           
-            unsigned int us = 500;
-            // usleep(us);
+            for (i = 0; i < THREADS; i++)
+            {
+                pthread_create(&threads[i], NULL, (void*) step, NULL);
+            }
+            /*
+            int e = 0;
+            while (timespec_diff(stime,etime) < 2)
+            {
+                long double dif = timespec_diff(stime,etime);
+                printf("%LF  \n",dif);
+                get_time(&etime);
+                //e++;
+                //printf("\nwoop: %d  ",e);
+            }
+            */
+            for (i = 0; i < THREADS; i++)
+            {
+                pthread_join(threads[i], NULL);
+            }
         }
+        if (WRITE_RESULTS)
+        {
+            char str[100];
+            snprintf(str,100,"%d.txt",steps);
+            writeResults(readMat,SIZE,str);
+        }
+        steps++;
+        // unsigned int us2 = 50000;
+        // usleep(us2);
+
         float sum = 0;
         int counter = 0;
         int x,y;
@@ -182,9 +205,8 @@ int main()
         {
             hoehe++;
         }
-        printf("temp: %f\t hoehe: %d",average,hoehe);
+        printf("temp: %f\t hoehe: %d\n",average,hoehe);
     }
-    finished = TRUE;
 
     return 0;
 }
