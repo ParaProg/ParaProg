@@ -14,8 +14,8 @@
 #define TRUE    1
 //-------------------------------------//
 
-const int SIZE = 200;
-const int THREADS = 200;
+const int SIZE = 50;
+const int THREADS = 10;
 
 double* readMat;
 double* writeMat;
@@ -23,7 +23,7 @@ double* writeMat;
 double INNER_TEMP = 20;
 double WARM_TEMP = 30;
 double COLD_TEMP = 0;
-double hoehe = 25;
+int hoehe = 25;
 
 int finished = FALSE;
 
@@ -148,17 +148,41 @@ int main()
     }
 
 
-
-    for (i = 1; i < 900; i++)
+    float average = 200;
+    while (abs(10 - average) > 0.2)
     {
-        copyMats();
-        
-        char str[100];
-        snprintf(str,100,"%d.txt",i);
-        writeResults(readMat,SIZE,str);
-       
-        unsigned int us = 100;
-        usleep(us);
+        for (i = 1; i < 100; i++)
+        {
+            copyMats();
+
+            char str[100];
+            snprintf(str,100,"%d.txt",i);
+            // writeResults(readMat,SIZE,str);
+           
+            unsigned int us = 500;
+            // usleep(us);
+        }
+        float sum = 0;
+        int counter = 0;
+        int x,y;
+        for (x = 1; x < SIZE-1; x++)
+        {
+            for (y = 1; y < SIZE-1; y++)
+            {
+                sum += readMat[x+y*SIZE];
+                counter++;
+            }
+        }
+        average = sum/(counter);
+        if (average < 10)
+        {
+            hoehe--;
+        } 
+        else 
+        {
+            hoehe++;
+        }
+        printf("temp: %f\t hoehe: %d",average,hoehe);
     }
     finished = TRUE;
 
